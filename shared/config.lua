@@ -52,21 +52,31 @@ Config.BlipTypes = {
 }
 
 Config.NpcModels = {
-    { label = 'cfg_model_rough_traveller', value = 'A_M_M_BiVRoughTravellers_01' },
-    { label = 'cfg_model_blackwater_townfolk', value = 'A_M_M_BlWTownfolk_01' },
-    { label = 'cfg_model_emerald_farmhand', value = 'A_M_M_EmRFarmHand_01' },
-    { label = 'cfg_model_sd_dock_foreman', value = 'A_M_M_SDDockForeman_01' },
-    { label = 'cfg_model_female_doctor', value = 'am_valentinedoctors_females_01' },
-    { label = 'cfg_model_high_society', value = 'a_m_m_gamhighsociety_01' },
-    { label = 'cfg_model_butler', value = 'cs_braithwaitebutler' },
-    { label = 'cfg_model_elder_townfolk', value = 'a_m_o_waptownfolk_01' },
-    { label = 'cfg_model_fish_vendor', value = 'cs_fishcollector' },
-    { label = 'cfg_model_butcher', value = 'u_m_m_valbutcher_01' },
-    { label = 'cfg_model_bartender', value = 'u_m_m_tumbartender_01' },
-    { label = 'cfg_model_rhodes_owner', value = 'u_m_m_rhdgenstoreowner_02' },
-    { label = 'cfg_model_strawberry_male', value = 'cr_strawberry_males_01' },
-    { label = 'cfg_model_braithwaite_male', value = 'msp_braithwaites1_males_01' },
-    { label = 'cfg_model_undertaker', value = 'u_m_m_rhdundertaker_01' }
+    { label = 'cfg_model_tumbleweed_store', value = 'u_f_m_tumgeneralstoreowner_01' },
+    { label = 'cfg_model_armadillo_store', value = 'u_m_m_armgeneralstoreowner_01' },
+    { label = 'cfg_model_saintdenis_store', value = 'u_m_m_nbxgeneralstoreowner_01' },
+    { label = 'cfg_model_rhodes_store_1', value = 'u_m_m_rhdgenstoreowner_01' },
+    { label = 'cfg_model_rhodes_store_2', value = 'u_m_m_rhdgenstoreowner_02' },
+    { label = 'cfg_model_strawberry_store', value = 'u_m_m_strgenstoreowner_01' },
+    { label = 'cfg_model_valentine_store', value = 'u_m_m_valgenstoreowner_01' },
+    { label = 'cfg_model_wallace_store', value = 'u_m_m_walgeneralstoreowner_01' },
+    { label = 'cfg_model_annesburg_gunsmith', value = 'u_m_m_asbgunsmith_01' },
+    { label = 'cfg_model_saintdenis_gunsmith', value = 'u_m_m_nbxgunsmith_01' },
+    { label = 'cfg_model_rhodes_gunsmith', value = 'u_m_m_rhdgunsmith_01' },
+    { label = 'cfg_model_tumbleweed_gunsmith', value = 'u_m_m_tumgunsmith_01' },
+    { label = 'cfg_model_valentine_gunsmith', value = 'u_m_m_valgunsmith_01' },
+    { label = 'cfg_model_generic_butcher', value = 's_m_m_unibutchers_01' },
+    { label = 'cfg_model_tumbleweed_butcher', value = 'u_m_m_tumbutcher_01' },
+    { label = 'cfg_model_valentine_butcher', value = 'u_m_m_valbutcher_01' },
+    { label = 'cfg_model_saintdenis_trapper', value = 'u_m_m_sdtrapper_01' },
+    { label = 'cfg_model_thieveslanding_bartender', value = 'u_f_m_tljbartender_01' },
+    { label = 'cfg_model_vanhorn_bartender', value = 'u_f_m_vhtbartender_01' },
+    { label = 'cfg_model_saintdenis_bartender_1', value = 'u_m_m_nbxbartender_01' },
+    { label = 'cfg_model_saintdenis_bartender_2', value = 'u_m_m_nbxbartender_02' },
+    { label = 'cfg_model_rhodes_bartender', value = 'u_m_m_rhdbartender_01' },
+    { label = 'cfg_model_armadillo_bartender', value = 'u_m_o_armbartender_01' },
+    { label = 'cfg_model_blackwater_bartender', value = 'u_m_o_blwbartender_01' },
+    { label = 'cfg_model_valentine_bartender', value = 'u_m_o_valbartender_01' }
 }
 
 Config.BlipColors = {

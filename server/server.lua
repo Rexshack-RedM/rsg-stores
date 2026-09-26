@@ -9,6 +9,7 @@ local MAX_DIST       = (Config.TargetDistance or 2.5) + 5.0 -- server-side proxi
 local TX_COOLDOWN    = 750    -- ms between transactions per player
 
 local CachedNPCs, CachedBlips = {}, {}
+local CachedPresets = { model = {}, blip = {} } -- admin-managed dropdown options
 local DbReady = false
 local lastTx = {}
 
@@ -209,6 +210,123 @@ local function sanitizeBlip(data)
 end
 
 -- ============================================
+-- PRESETS (admin-managed NPC model / blip type dropdown options)
+-- ============================================
+local PRESET_KINDS = { model = true, blip = true }
+
+-- Signed 32-bit int (blip hashes are stored/used signed, like Config.BlipTypes)
+local function toSigned(n)
+    n = math.floor(n) % 4294967296
+    return n >= 2147483648 and n - 4294967296 or n
+end
+
+-- Validates + normalises a preset. Returns preset or nil, errorLocaleKey.
+local function sanitizePreset(data)
+    if type(data) ~= 'table' or not PRESET_KINDS[data.kind] then return nil, 'sv_preset_invalid' end
+    local label = type(data.label) == 'string' and data.label:gsub('^%s+', ''):gsub('%s+$', ''):sub(1, 100) or ''
+    local value = type(data.value) == 'string' and data.value:gsub('%s', '') or tostring(data.value or '')
+    if value == '' or #value > 100 then return nil, 'sv_preset_invalid' end
+    if data.kind == 'model' then
+        if not value:match('^[%w_]+$') then return nil, 'sv_preset_invalid' end
+        value = value:lower()
+    else
+        local n = tonumber(value)
+        if n then
+            if n ~= n or math.floor(n) ~= n then return nil, 'sv_preset_invalid' end
+            value = tostring(toSigned(n))
+        elseif value:match('^[%w_]+$') then
+            value = tostring(toSigned(joaat(value)))  -- accept sprite names, e.g. blip_shop_store
+        else
+            return nil, 'sv_preset_invalid'
+        end
+    end
+    if label == '' then label = value end
+    return { kind = data.kind, label = label, value = value }
+end
+
+local function presetOut(row)
+    return { id = tonumber(row.id), label = row.label, value = row.kind == 'blip' and tonumber(row.value) or row.value }
+end
+
+local function seedPresets()
+    local count = MySQL.scalar.await('SELECT COUNT(*) FROM rsg_shops_presets') or 0
+    if count > 0 then return end
+    local function seed(kind, list)
+        for _, o in ipairs(list or {}) do
+            MySQL.insert.await('INSERT IGNORE INTO rsg_shops_presets (kind, label, value) VALUES (?, ?, ?)',
+                { kind, o.label, tostring(o.value) })
+        end
+    end
+    seed('model', Config.NpcModels)
+    seed('blip', Config.BlipTypes)
+    print('[rsg-stores] ' .. locale('sv_presets_seeded'))
+end
+
+local function LoadPresets()
+    seedPresets()
+    CachedPresets = { model = {}, blip = {} }
+    for _, row in ipairs(MySQL.query.await('SELECT * FROM rsg_shops_presets ORDER BY id ASC') or {}) do
+        if PRESET_KINDS[row.kind] then
+            local list = CachedPresets[row.kind]
+            list[#list + 1] = presetOut(row)
+        end
+    end
+end
+
+local function findPreset(id)
+    id = tonumber(id)
+    for kind, list in pairs(CachedPresets) do
+        for i, p in ipairs(list) do
+            if p.id == id then return p, kind, i end
+        end
+    end
+end
+
+lib.callback.register('rsg-stores:server:getPresets', function(source)
+    if not isAdmin(source) then return nil end
+    return CachedPresets
+end)
+
+-- Create (no id) or update (id) a preset. Returns { ok, presets, err }.
+lib.callback.register('rsg-stores:server:savePreset', function(source, id, data)
+    if denyIfNotAdmin(source, 'savePreset') then return { ok = false } end
+    local p, err = sanitizePreset(data)
+    if not p then return { ok = false, err = err } end
+    local existing, oldKind = nil, nil
+    if id then
+        existing, oldKind = findPreset(id)
+        if not existing then return { ok = false, err = 'sv_preset_invalid' } end
+    end
+    local dupe = MySQL.scalar.await('SELECT id FROM rsg_shops_presets WHERE kind = ? AND value = ?', { p.kind, p.value })
+    if dupe and tonumber(dupe) ~= (existing and existing.id) then return { ok = false, err = 'sv_preset_exists' } end
+
+    if existing then
+        MySQL.update.await('UPDATE rsg_shops_presets SET kind = ?, label = ?, value = ? WHERE id = ?', { p.kind, p.label, p.value, existing.id })
+    else
+        MySQL.insert.await('INSERT INTO rsg_shops_presets (kind, label, value) VALUES (?, ?, ?)', { p.kind, p.label, p.value })
+    end
+    LoadPresets()
+    Webhook.Send('admin', locale(existing and 'wh_t_preset_updated' or 'wh_t_preset_created'), nil, source, {
+        { name = locale('wh_f_type'), value = p.kind }, { name = locale('wh_f_name'), value = p.label },
+        { name = locale('wh_f_value'), value = ('`%s`'):format(p.value) },
+    })
+    return { ok = true, presets = CachedPresets }
+end)
+
+lib.callback.register('rsg-stores:server:deletePreset', function(source, id)
+    if denyIfNotAdmin(source, 'deletePreset') then return { ok = false } end
+    local existing, kind = findPreset(id)
+    if not existing then return { ok = false, err = 'sv_preset_invalid' } end
+    MySQL.query.await('DELETE FROM rsg_shops_presets WHERE id = ?', { existing.id })
+    LoadPresets()
+    Webhook.Send('admin', locale('wh_t_preset_deleted'), nil, source, {
+        { name = locale('wh_f_type'), value = kind }, { name = locale('wh_f_name'), value = existing.label },
+        { name = locale('wh_f_value'), value = ('`%s`'):format(tostring(existing.value)) },
+    })
+    return { ok = true, presets = CachedPresets }
+end)
+
+-- ============================================
 -- DATABASE / CACHE
 -- ============================================
 local function LoadCacheFromDB()
@@ -255,6 +373,7 @@ local function LoadCacheFromDB()
         }
     end
 
+    LoadPresets()
     print(('[rsg-stores] ' .. locale('sv_loaded')):format(#CachedNPCs, #CachedBlips))
 end
 

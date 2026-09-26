@@ -277,6 +277,7 @@
                 <div class="mode-tabs adm-tabs">
                     <button class="sort-btn mode-tab active" id="adm-tab-npcs"><i class="fa-solid fa-users"></i> <span data-i18n="ui_adm_tab_npcs">NPCs</span> <span class="qty-pill" id="adm-npc-count">0</span></button>
                     <button class="sort-btn mode-tab" id="adm-tab-blips"><i class="fa-solid fa-map-location-dot"></i> <span data-i18n="ui_adm_tab_blips">Blips</span> <span class="qty-pill" id="adm-blip-count">0</span></button>
+                    <button class="sort-btn mode-tab" id="adm-tab-presets"><i class="fa-solid fa-list-check"></i> <span data-i18n="ui_adm_tab_presets">Presets</span> <span class="qty-pill" id="adm-preset-count">0</span></button>
                 </div>
                 <div class="adm-toolbar">
                     <div class="search-box">
@@ -385,6 +386,29 @@
                         <button class="circle-btn adm-danger" id="blip-delete" data-i18n-title="ui_adm_delete" title="Delete"><i class="fa-solid fa-trash"></i></button>
                     </div>
                     <button class="wood-btn" id="blip-save"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="ui_adm_save">Save</span></button>
+                </div>
+            </div>
+
+            <!-- PRESET EDITOR (dropdown options for NPC models / blip types) -->
+            <div class="adm-view hidden" id="adm-preset-view">
+                <div class="adm-scroll adm-form">
+                    <div class="adm-section-title"><i class="fa-solid fa-list-check"></i> <span data-i18n="ui_adm_sec_preset">Dropdown Option</span></div>
+                    <label class="adm-field"><span data-i18n="ui_adm_preset_kind">Type</span>
+                        <select id="preset-kind">
+                            <option value="model" data-i18n="ui_adm_kind_model">NPC Model</option>
+                            <option value="blip" data-i18n="ui_adm_kind_blip">Blip Type</option>
+                        </select></label>
+                    <label class="adm-field"><span data-i18n="ui_adm_preset_label">Label</span>
+                        <input type="text" id="preset-label" maxlength="100"></label>
+                    <label class="adm-field"><span data-i18n="ui_adm_preset_value" class="req">Value</span>
+                        <input type="text" id="preset-value" maxlength="100" autocomplete="off"></label>
+                    <p class="adm-hint" id="preset-hint"></p>
+                </div>
+                <div class="adm-footer">
+                    <div class="adm-footer-tools" id="preset-tools">
+                        <button class="circle-btn adm-danger" id="preset-delete" data-i18n-title="ui_adm_delete" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                    <button class="wood-btn" id="preset-save"><i class="fa-solid fa-floppy-disk"></i> <span id="preset-save-label" data-i18n="ui_adm_save">Save</span></button>
                 </div>
             </div>
         </div>

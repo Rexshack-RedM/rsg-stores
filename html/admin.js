@@ -44,12 +44,8 @@ var AdminUI = {
         this.catalogMap = {};
         var self = this;
         this.catalog.forEach(function(it) { self.catalogMap[it.name] = it; });
-        this.models = data.models || [];
-        this.blipTypes = data.blipTypes || [];
         this.colors = data.colors || [];
-        this.fillSelect('npc-model', this.models);
-        this.fillSelect('npc-blip-sprite', this.blipTypes);
-        this.fillSelect('blip-sprite', this.blipTypes);
+        this.setPresets(data);
         this.fillSelect('npc-blip-color', this.colors, true);
         this.fillSelect('blip-color', this.colors, true);
         this.setData(data);
@@ -73,6 +69,22 @@ var AdminUI = {
         if (this.view === 'npc' && this.editId && !this.findNpc(this.editId)) this.showList();
         if (this.view === 'blip' && this.editId && !this.findBlip(this.editId)) this.showList();
         if (this.view === 'npc' && this.editId) this.renderLinkedBlip();
+    },
+
+    // Admin-managed dropdown options (NPC models / blip types)
+    setPresets: function(data) {
+        this.models = data.models || [];
+        this.blipTypes = data.blipTypes || [];
+        this.fillSelect('npc-model', this.models);
+        this.fillSelect('npc-blip-sprite', this.blipTypes);
+        this.fillSelect('blip-sprite', this.blipTypes);
+        this.$('adm-preset-count').textContent = this.models.length + this.blipTypes.length;
+    },
+
+    findPreset: function(id) {
+        var all = this.models.map(function(p) { return { kind: 'model', p: p }; })
+            .concat(this.blipTypes.map(function(p) { return { kind: 'blip', p: p }; }));
+        return all.find(function(x) { return x.p.id === id; }) || null;
     },
 
     hide: function() {
@@ -209,6 +221,7 @@ var AdminUI = {
         this.$('adm-list-view').classList.toggle('hidden', view !== 'list');
         this.$('adm-npc-view').classList.toggle('hidden', view !== 'npc');
         this.$('adm-blip-view').classList.toggle('hidden', view !== 'blip');
+        this.$('adm-preset-view').classList.toggle('hidden', view !== 'preset');
         document.querySelector('.adm-panel').classList.toggle('editing', view !== 'list');
     },
 
@@ -229,7 +242,9 @@ var AdminUI = {
         this.tab = tab;
         this.$('adm-tab-npcs').classList.toggle('active', tab === 'npcs');
         this.$('adm-tab-blips').classList.toggle('active', tab === 'blips');
-        this.$('adm-new-label').textContent = this.T(tab === 'npcs' ? 'ui_adm_new_npc' : 'ui_adm_new_blip');
+        this.$('adm-tab-presets').classList.toggle('active', tab === 'presets');
+        this.$('adm-new-label').textContent = this.T(
+            tab === 'npcs' ? 'ui_adm_new_npc' : tab === 'blips' ? 'ui_adm_new_blip' : 'ui_adm_new_preset');
         this.renderList();
     },
 
@@ -247,6 +262,14 @@ var AdminUI = {
                     ? shop.label + ' • ' + self.T('ui_adm_items_count', (shop.items || []).length) + ' • ' + self.T('ui_adm_type_' + (shop.type || 'both'))
                     : self.T('ui_adm_no_shop');
                 rows.push({ id: n.id, icon: shop ? 'fa-store' : 'fa-user', title: n.name || n.model, sub: sub, pill: '#' + n.id, off: !shop });
+            });
+        } else if (this.tab === 'presets') {
+            [['model', this.models, 'fa-user', 'ui_adm_kind_model'], ['blip', this.blipTypes, 'fa-map-pin', 'ui_adm_kind_blip']].forEach(function(g) {
+                g[1].forEach(function(p) {
+                    var hay = (p.label + ' ' + p.value).toLowerCase();
+                    if (q && hay.indexOf(q) === -1) return;
+                    rows.push({ id: p.id, icon: g[2], title: p.label, sub: String(p.value), pill: self.T(g[3]) });
+                });
             });
         } else {
             this.blips.forEach(function(b) {
@@ -270,7 +293,9 @@ var AdminUI = {
                 '<div class="adm-row-sub">' + escHtml(r.sub) + '</div></div>' +
                 '<span class="adm-pill' + (r.off ? ' off' : '') + '">' + escHtml(r.pill) + '</span>';
             el.addEventListener('click', function() {
-                if (self.tab === 'npcs') self.openNpc(r.id); else self.openBlip(r.id);
+                if (self.tab === 'npcs') self.openNpc(r.id);
+                else if (self.tab === 'presets') self.openPreset(r.id);
+                else self.openBlip(r.id);
             });
             box.appendChild(el);
         });
@@ -279,7 +304,7 @@ var AdminUI = {
         this.$('adm-list-empty').classList.toggle('hidden', !empty);
         this.$('adm-list-empty-text').textContent = q
             ? this.T('cl_no_results')
-            : this.T(this.tab === 'npcs' ? 'ui_adm_no_npcs' : 'ui_adm_no_blips');
+            : this.T(this.tab === 'npcs' ? 'ui_adm_no_npcs' : this.tab === 'blips' ? 'ui_adm_no_blips' : 'ui_adm_no_presets');
     },
 
     // ---------- NPC editor ----------
@@ -513,6 +538,49 @@ var AdminUI = {
         this.showList();
     },
 
+    // ---------- preset editor ----------
+    openPreset: function(id) {
+        var found = id ? this.findPreset(id) : null;
+        this.editId = found ? found.p.id : null;
+        this.setView('preset');
+        this.setHeader(found ? 'ui_adm_edit_preset_title' : 'ui_adm_new_preset_title', found ? found.p.label : null);
+        this.clearInvalid();
+        this.selectValue('preset-kind', found ? found.kind : 'model');
+        this.$('preset-label').value = found ? found.p.label : '';
+        this.$('preset-value').value = found ? String(found.p.value) : '';
+        this.$('preset-tools').classList.toggle('hidden', !found);
+        this.$('preset-save-label').textContent = this.T(found ? 'ui_adm_save' : 'ui_adm_create');
+        this.updatePresetHint();
+        this.$('preset-value').focus();
+    },
+
+    updatePresetHint: function() {
+        this.$('preset-hint').textContent = this.T(this.$('preset-kind').value === 'blip' ? 'ui_adm_preset_hint_blip' : 'ui_adm_preset_hint_model');
+    },
+
+    presetDone: function(res) {
+        if (!res || !res.ok) return false;
+        this.setPresets(res);
+        this.showList();
+        return true;
+    },
+
+    savePreset: function() {
+        this.clearInvalid();
+        if (!this.requireFields(['preset-value'])) return;
+        var preset = {
+            kind: this.$('preset-kind').value,
+            label: this.$('preset-label').value.trim(),
+            value: this.$('preset-value').value.trim()
+        };
+        var btn = this.$('preset-save'), self = this;
+        btn.disabled = true;
+        this.post('adminSavePreset', { id: this.editId, preset: preset }).then(function(res) {
+            btn.disabled = false;
+            if (!self.presetDone(res)) self.$('preset-value').classList.add('invalid');
+        });
+    },
+
     // ---------- confirm ----------
     confirm: function(title, text, action) {
         this.$('adm-confirm-title').textContent = title;
@@ -540,9 +608,23 @@ var AdminUI = {
         $('adm-back').addEventListener('click', function() { self.showList(); });
         $('adm-tab-npcs').addEventListener('click', function() { self.setTab('npcs'); });
         $('adm-tab-blips').addEventListener('click', function() { self.setTab('blips'); });
+        $('adm-tab-presets').addEventListener('click', function() { self.setTab('presets'); });
         $('adm-search').addEventListener('input', function(e) { self.search = e.target.value.toLowerCase(); self.renderList(); });
         $('adm-new').addEventListener('click', function() {
-            if (self.tab === 'npcs') self.openNpc(null); else self.openBlip(null);
+            if (self.tab === 'npcs') self.openNpc(null);
+            else if (self.tab === 'presets') self.openPreset(null);
+            else self.openBlip(null);
+        });
+
+        // Preset editor
+        $('preset-kind').addEventListener('change', function() { self.updatePresetHint(); });
+        $('preset-save').addEventListener('click', function() { self.savePreset(); });
+        $('preset-delete').addEventListener('click', function() {
+            var f = self.findPreset(self.editId);
+            if (!f) return;
+            self.confirm(self.T('ui_adm_delete_preset_h'), self.T('ui_adm_delete_preset_c', f.p.label), function() {
+                self.post('adminDeletePreset', { id: f.p.id, label: f.p.label }).then(function(res) { self.presetDone(res); });
+            });
         });
 
         // NPC editor

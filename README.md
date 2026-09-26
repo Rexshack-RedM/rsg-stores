@@ -2,8 +2,6 @@
 
 Create NPC shopkeepers, shops and map blips in-game for **RSG-Core (RedM)**, all from an admin menu with no config editing. Players buy with a cart or sell straight back to the shop through a themed NUI. Every transaction is checked on the server and can be logged to Discord.
 
-**Version:** 2.5.0
-
 ---
 
 ## Features
@@ -23,6 +21,7 @@ Create NPC shopkeepers, shops and map blips in-game for **RSG-Core (RedM)**, all
 - **Shop contents:** searchable item picker with images; edit price and stock inline.
 - **Shop types:** Buy & Sell, Buy only, Sell only, or a plain NPC with no shop.
 - **Blips:** create, recolour, duplicate, show or hide, and delete. Shop blips are linked to their NPC and move with it.
+- **Presets:** add, edit or remove the NPC models and blip types offered in the dropdowns, in-game. They are saved to the database, so no config editing or restart is needed.
 - Everything saves to MySQL immediately and syncs live to every player.
 
 ### Security
@@ -75,14 +74,14 @@ Create NPC shopkeepers, shops and map blips in-game for **RSG-Core (RedM)**, all
    ```
    [rsg-stores] Created table `rsg_shops_npcs`.
    ...
-   [rsg-stores] Database installed/updated (3 change(s)).
+   [rsg-stores] Database installed/updated (4 change(s)).
    ```
    To install manually instead, set `Config.AutoInstallDatabase = false` and import `install/rsg-stores.sql`. `install/example.sql` has optional sample data.
 4. *(Optional)* Add your Discord webhook URLs to `server/sv_webhooks_config.lua` (see below).
 5. Join the game as an admin and type **`/npcshops`**.
 
 ### Updating from an older version
-Replace the files and restart. The auto-installer adds any missing columns or indexes and keeps your existing shops, items and blips.
+Replace the files and restart. The auto-installer adds any missing columns or indexes and keeps your existing shops, items and blips. On first start after updating, the new presets table is filled from your `Config.NpcModels` and `Config.BlipTypes`, so your current dropdown options carry over.
 
 ---
 
@@ -101,11 +100,13 @@ Replace the files and restart. The auto-installer adds any missing columns or in
 | `Config.SellAddsStock` | `true` | Items sold to a shop go back into its stock (limited-stock items only) |
 | `Config.MaxShopStock` | `100` | Most of any one item a shop will hold from player sales (`0` = no cap) |
 | `Config.TargetDistance` | `2.5` | ox_target interaction range. The server allows up to +5.0 to cover lag |
-| `Config.BlipTypes` | list | Blip sprites offered in the menu |
-| `Config.NpcModels` | list | Ped models offered in the menu |
+| `Config.BlipTypes` | list | Starting blip sprites, copied into the presets table on first start |
+| `Config.NpcModels` | list | Starting ped models, copied into the presets table on first start |
 | `Config.BlipColors` | list | Blip colours offered in the menu |
 
-**Adding a model, blip type or colour:** the `label` must be a locale key, and that key must exist in the locale files.
+**NPC models and blip types** are managed in-game on the **Presets** tab (see [Managing presets](#managing-presets)). The two config lists are only used to fill the presets table the first time it is created. Later changes to them are ignored unless you empty the `rsg_shops_presets` table.
+
+**Adding a colour** (or a default model or blip type for fresh installs): the `label` must be a locale key, and that key must exist in the locale files.
 ```lua
 -- shared/config.lua
 { label = 'cfg_model_sheriff', value = 's_m_m_valsheriff_01' },
@@ -123,7 +124,7 @@ Replace the files and restart. The auto-installer adds any missing columns or in
 | `BotName` / `AvatarUrl` | Name and avatar shown on Discord messages |
 | `Urls.purchases` | Cart purchases and refunds |
 | `Urls.sales` | Items sold to shops |
-| `Urls.admin` | NPC, shop and blip create / edit / delete (with a list of changes) |
+| `Urls.admin` | NPC, shop, blip and preset create / edit / delete (with a list of changes) |
 | `Urls.security` | Executor attempts, out-of-range trades, malformed data, large transactions |
 | `Urls.system` | Resource start, database install, database failures |
 | `SecurityPing` | Role or user to ping on security alerts, e.g. `'<@&123456789012345678>'` |
@@ -150,7 +151,7 @@ Available: `en`, `de`, `el`, `es`, `fr`, `ja`, `nl`, `pl`, `pt-br`, `ro`.
 ## Usage
 
 ### The Shop Manager panel
-`/npcshops` opens the **Shop Manager**, a panel docked on the right of the screen so you can still see the world. It has two tabs, **NPCs** and **Blips**, each with a search box and a list. Click any row to edit it. Press **Esc** to go back one step or close the panel.
+`/npcshops` opens the **Shop Manager**, a panel docked on the right of the screen so you can still see the world. It has three tabs, **NPCs**, **Blips** and **Presets**, each with a search box and a list. Click any row to edit it. Press **Esc** to go back one step or close the panel.
 
 ### Creating a shop
 1. Stand where the shopkeeper should be, facing the way they should face.
@@ -166,6 +167,17 @@ Click an NPC in the list to open the same form. You can change any field, edit p
 
 ### Managing blips
 On the **Blips** tab, **New Blip** creates one at your position. Click a blip to rename it or change its icon, colour or position. The footer buttons let you **Teleport**, toggle **Visibility** (only on your map), **Duplicate** at your position or **Delete**.
+
+### Managing presets
+The **Presets** tab lists every option in the **NPC Model** and **Blip Type** dropdowns. Changes appear in the dropdowns as soon as you save.
+
+- **Add:** click **New Preset**, choose the type, then enter:
+  - **Value:** for an NPC model, the ped name (e.g. `u_m_m_valgunsmith_01`; letters, numbers and underscores). For a blip type, the sprite hash (e.g. `1475879922`) or the sprite name (e.g. `blip_shop_store`), which is converted to the hash for you.
+  - **Label** *(optional)*: the name shown in the dropdown. If left blank, the value is used.
+- **Edit:** click a preset to change its type, label or value, then **Save**.
+- **Remove:** open a preset and click **Delete**. This only removes it from the dropdown. NPCs and blips already using it keep working, and their editor still shows the current value.
+
+Duplicates and invalid values are rejected. Every change is permission-checked on the server and logged to the admin webhook.
 
 ### Stock
 - Stock goes down with each purchase.
@@ -201,6 +213,7 @@ exports['rsg-stores']:SendWebhook('admin', 'Title', 'Description', source, {
 | `rsg_shops_npcs` | NPC position, model and shop settings |
 | `rsg_shops_items` | Items per NPC (`npc_id`), with price and stock |
 | `rsg_shops_blips` | Blips, optionally linked to an NPC (`associated_npc_id`) |
+| `rsg_shops_presets` | Dropdown options: `kind` (`model` / `blip`), `label`, `value` |
 
 **File layout:**
 ```
@@ -231,7 +244,8 @@ rsg-stores/
 | `/npcshops` says access denied | Give yourself the permission in `Config.AdminPermission` (e.g. `add_principal identifier.license:xxx group.admin`) |
 | "You are too far from the shop" | Stand next to the NPC. If you've moved the NPC, check its coordinates are at ground level |
 | "The shop only has room for …" when selling | The item has reached `Config.MaxShopStock`. Raise the cap, set it to `0`, or turn off `Config.SellAddsStock` |
-| NPC doesn't appear | Check the model name is valid. Invalid models are logged in the F8 console |
+| NPC doesn't appear | Check the model name is valid. Invalid models are logged in the F8 console. Fix or remove bad model presets on the **Presets** tab |
+| Config model/blip changes don't show | The dropdowns come from the **Presets** tab after first start. Add them there instead |
 | Item images missing | Images come from `rsg-inventory/html/images/`; a fallback icon is shown if the image is missing |
 | No Discord messages | Check the URLs, then run `storeswebhooktest` |
 | Raw key such as `cfg_model_x` shows | That key is missing from `locales/en.json` |

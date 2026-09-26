@@ -37,3 +37,13 @@ CREATE TABLE IF NOT EXISTS `rsg_shops_blips` (
   PRIMARY KEY (`id`),
   KEY `idx_assoc_npc` (`associated_npc_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Admin-managed dropdown options (NPC models / blip types). Seeded from Config on first start.
+CREATE TABLE IF NOT EXISTS `rsg_shops_presets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `kind` varchar(10) NOT NULL,
+  `label` varchar(100) NOT NULL,
+  `value` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_kind_value` (`kind`, `value`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

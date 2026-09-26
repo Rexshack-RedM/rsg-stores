@@ -77,6 +77,22 @@ local SCHEMA = {
         },
         indexes = { idx_assoc_npc = '`associated_npc_id`' },
     },
+    {
+        -- Admin-managed dropdown options (NPC models / blip sprites). Seeded from Config on first install.
+        name = 'rsg_shops_presets',
+        create = [[
+            CREATE TABLE IF NOT EXISTS `rsg_shops_presets` (
+              `id` int(11) NOT NULL AUTO_INCREMENT,
+              `kind` varchar(10) NOT NULL,
+              `label` varchar(100) NOT NULL,
+              `value` varchar(100) NOT NULL,
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `uq_kind_value` (`kind`, `value`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+        ]],
+        columns = {},
+        indexes = {},
+    },
 }
 
 local function tableExists(name)

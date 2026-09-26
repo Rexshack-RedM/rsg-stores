@@ -416,8 +416,22 @@ local function CloseAdmin()
     SendNUIMessage({ action = 'closeAdmin' })
 end
 
+-- Server presets -> NUI options ({ id, label, value }); seeded labels are locale keys.
+local function presetOptions(list)
+    local out = {}
+    for i, p in ipairs(list or {}) do out[i] = { id = p.id, label = locale(p.label), value = p.value } end
+    return out
+end
+
+local function presetPayload(presets)
+    return { models = presetOptions(presets.model), blipTypes = presetOptions(presets.blip) }
+end
+
 local function OpenAdmin()
     if adminOpen or currentShop then return end
+    local presets = lib.callback.await('rsg-stores:server:getPresets', false)
+        or { model = Config.NpcModels, blip = Config.BlipTypes }
+    local opts = presetPayload(presets)
     adminOpen = true
     SetNuiFocus(true, true)
     local code, strings = GetUiStrings()
@@ -427,8 +441,8 @@ local function OpenAdmin()
         blips     = customBlips,
         hidden    = hiddenList(),
         items     = getItemCatalog(),
-        models    = localizedOptions(Config.NpcModels),
-        blipTypes = localizedOptions(Config.BlipTypes),
+        models    = opts.models,
+        blipTypes = opts.blipTypes,
         colors    = localizedOptions(Config.BlipColors),
         locale    = code,
         uiStrings = strings,
@@ -556,6 +570,29 @@ RegisterNUICallback('adminToggleBlip', function(data, cb)
         activeBlips[blip.id] = nil
     end
     cb({ ok = true, hidden = hiddenBlips[blip.id] == true })
+end)
+
+-- Presets: admin-managed NPC model / blip type dropdown options (persisted server-side)
+local function presetResult(res, cb, okTitle, okMsg)
+    if not res or not res.ok then
+        adminNotify(locale('t_error'), locale(res and res.err or 'sv_update_fail'), 'error')
+        return cb({ ok = false })
+    end
+    adminNotify(okTitle, okMsg, 'success')
+    local p = presetPayload(res.presets)
+    cb({ ok = true, models = p.models, blipTypes = p.blipTypes })
+end
+
+RegisterNUICallback('adminSavePreset', function(data, cb)
+    if not adminOpen or type(data) ~= 'table' or type(data.preset) ~= 'table' then return cb({ ok = false }) end
+    local res = lib.callback.await('rsg-stores:server:savePreset', false, tonumber(data.id), data.preset)
+    presetResult(res, cb, locale('t_preset_saved'), locale('cl_preset_saved'):format(data.preset.label or data.preset.value or ''))
+end)
+
+RegisterNUICallback('adminDeletePreset', function(data, cb)
+    if not adminOpen or type(data) ~= 'table' then return cb({ ok = false }) end
+    local res = lib.callback.await('rsg-stores:server:deletePreset', false, tonumber(data.id))
+    presetResult(res, cb, locale('t_deleted'), locale('cl_preset_deleted'):format(data.label or ''))
 end)
 
 -- ============================================
