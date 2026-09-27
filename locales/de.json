@@ -223,6 +223,8 @@
     "cfg_blip_barber": "Barbier",
     "cfg_blip_doctor": "Arzt",
     "cfg_blip_gunsmith": "Büchsenmacher",
+    "cfg_blip_general_store": "Gemischtwarenladen",
+    "cfg_blip_butcher": "Metzger",
     "cfg_blip_stable": "Stall",
     "cfg_blip_market": "Markt",
     "cfg_blip_fishing": "Angeln",

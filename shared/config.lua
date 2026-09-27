@@ -19,36 +19,10 @@ Config.TargetDistance = 2.5       -- ox_target range; server allows +5.0 for lat
 
 -- Labels are locale keys (locales/*.json), translated when the admin menu opens.
 Config.BlipTypes = {
-    { label = 'cfg_blip_coach', value = 1012165077 },
-    { label = 'cfg_blip_corpse', value = -1116208957 },
-    { label = 'cfg_blip_death', value = 350569997 },
-    { label = 'cfg_blip_loan_shark', value = 1838354131 },
-    { label = 'cfg_blip_newspaper', value = 587827268 },
-    { label = 'cfg_blip_sheriff', value = -693644997 },
-    { label = 'cfg_blip_animal', value = -1646261997 },
-    { label = 'cfg_blip_camp', value = -910004446 },
-    { label = 'cfg_blip_camp_fire', value = 773587962 },
-    { label = 'cfg_blip_house', value = 1586273744 },
-    { label = 'cfg_blip_bank', value = -2128054417 },
-    { label = 'cfg_blip_magnify', value = 150441873 },
-    { label = 'cfg_blip_hideout', value = -428972082 },
-    { label = 'cfg_blip_saloon', value = 1879260108 },
-    { label = 'cfg_blip_letter', value = -2100584570 },
-    { label = 'cfg_blip_blacksmith', value = -758970771 },
-    { label = 'cfg_blip_barber', value = -2090472724 },
-    { label = 'cfg_blip_doctor', value = -1739686743 },
-    { label = 'cfg_blip_gunsmith', value = -145868367 },
-    { label = 'cfg_blip_stable', value = 1938782895 },
-    { label = 'cfg_blip_market', value = 819673798 },
-    { label = 'cfg_blip_fishing', value = -852241114 },
-    { label = 'cfg_blip_food', value = -1852063472 },
-    { label = 'cfg_blip_group', value = -180188163 },
-    { label = 'cfg_blip_enemy', value = -507621590 },
-    { label = 'cfg_blip_boat', value = -1018164873 },
-    { label = 'cfg_blip_moonshine', value = -392465725 },
-    { label = 'cfg_blip_wild_beast', value = -1085232344 },
-    { label = 'cfg_blip_train', value = 1258184551 },
-    { label = 'cfg_blip_mine', value = 1220803671 },
+    { label = 'cfg_blip_general_store', value = 1475879922 },   -- blip_shop_store
+    { label = 'cfg_blip_gunsmith', value = -145868367 },        -- blip_shop_gunsmith
+    { label = 'cfg_blip_butcher', value = -1665418949 },        -- blip_shop_butcher
+    { label = 'cfg_blip_saloon', value = 1879260108 },          -- blip_saloon
 }
 
 Config.NpcModels = {

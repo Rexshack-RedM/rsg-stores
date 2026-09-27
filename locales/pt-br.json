@@ -223,6 +223,8 @@
     "cfg_blip_barber": "Barbeiro",
     "cfg_blip_doctor": "Médico",
     "cfg_blip_gunsmith": "Armeiro",
+    "cfg_blip_general_store": "Armazém",
+    "cfg_blip_butcher": "Açougueiro",
     "cfg_blip_stable": "Estábulo",
     "cfg_blip_market": "Mercado",
     "cfg_blip_fishing": "Pesca",

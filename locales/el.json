@@ -223,6 +223,8 @@
     "cfg_blip_barber": "Κουρέας",
     "cfg_blip_doctor": "Γιατρός",
     "cfg_blip_gunsmith": "Οπλουργός",
+    "cfg_blip_general_store": "Γενικό Κατάστημα",
+    "cfg_blip_butcher": "Χασάπης",
     "cfg_blip_stable": "Στάβλος",
     "cfg_blip_market": "Αγορά",
     "cfg_blip_fishing": "Ψάρεμα",

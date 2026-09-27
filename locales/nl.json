@@ -223,6 +223,8 @@
     "cfg_blip_barber": "Kapper",
     "cfg_blip_doctor": "Dokter",
     "cfg_blip_gunsmith": "Wapensmid",
+    "cfg_blip_general_store": "Winkel",
+    "cfg_blip_butcher": "Slager",
     "cfg_blip_stable": "Stal",
     "cfg_blip_market": "Markt",
     "cfg_blip_fishing": "Vissen",
