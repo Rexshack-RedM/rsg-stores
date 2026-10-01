@@ -275,6 +275,8 @@
     "ui_adm_subtitle": "NPC-uri • Magazine • Marcaje",
     "ui_adm_tab_npcs": "NPC-uri",
     "ui_adm_tab_blips": "Marcaje",
+    "ui_adm_filter_all_types": "Toate tipurile",
+    "ui_adm_filter_no_type": "Fără blip / tip",
     "ui_adm_search": "Caută...",
     "ui_adm_new_npc": "NPC nou",
     "ui_adm_new_blip": "Marcaj nou",

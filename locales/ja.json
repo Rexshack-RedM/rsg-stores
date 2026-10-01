@@ -275,6 +275,8 @@
     "ui_adm_subtitle": "NPC • ショップ • ブリップ",
     "ui_adm_tab_npcs": "NPC",
     "ui_adm_tab_blips": "ブリップ",
+    "ui_adm_filter_all_types": "すべての店舗タイプ",
+    "ui_adm_filter_no_type": "ブリップなし",
     "ui_adm_search": "検索...",
     "ui_adm_new_npc": "新規NPC",
     "ui_adm_new_blip": "新規ブリップ",

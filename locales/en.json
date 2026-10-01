@@ -275,6 +275,8 @@
     "ui_adm_subtitle": "NPCs • Shops • Blips",
     "ui_adm_tab_npcs": "NPCs",
     "ui_adm_tab_blips": "Blips",
+    "ui_adm_filter_all_types": "All store types",
+    "ui_adm_filter_no_type": "No blip / untyped",
     "ui_adm_search": "Search...",
     "ui_adm_new_npc": "New NPC",
     "ui_adm_new_blip": "New Blip",

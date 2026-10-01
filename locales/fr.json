@@ -275,6 +275,8 @@
     "ui_adm_subtitle": "PNJ • Boutiques • Repères",
     "ui_adm_tab_npcs": "PNJ",
     "ui_adm_tab_blips": "Repères",
+    "ui_adm_filter_all_types": "Tous les types",
+    "ui_adm_filter_no_type": "Sans blip / sans type",
     "ui_adm_search": "Rechercher...",
     "ui_adm_new_npc": "Nouveau PNJ",
     "ui_adm_new_blip": "Nouveau repère",

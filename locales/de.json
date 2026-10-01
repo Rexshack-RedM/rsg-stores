@@ -275,6 +275,8 @@
     "ui_adm_subtitle": "NPCs • Läden • Markierungen",
     "ui_adm_tab_npcs": "NPCs",
     "ui_adm_tab_blips": "Markierungen",
+    "ui_adm_filter_all_types": "Alle Ladentypen",
+    "ui_adm_filter_no_type": "Kein Blip / ohne Typ",
     "ui_adm_search": "Suchen...",
     "ui_adm_new_npc": "Neuer NPC",
     "ui_adm_new_blip": "Neue Markierung",

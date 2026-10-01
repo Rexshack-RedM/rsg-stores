@@ -44,7 +44,10 @@
 
 .adm-tabs { display: flex; gap: 8px; padding: 4px 20px 0; }
 .adm-tabs .mode-tab { flex: 1; justify-content: center; }
-.adm-toolbar { padding: 12px 20px 8px; }
+.adm-toolbar { padding: 12px 20px 8px; display: flex; gap: 8px; align-items: center; }
+.adm-toolbar .search-box { flex: 1 1 auto; }
+.adm-type-filter { flex: 0 0 170px; }
+.adm-type-filter.hidden { display: none; }
 
 .adm-scroll {
     flex: 1;
@@ -259,7 +262,7 @@
 
 /* layout fixes */
 .req::after { content: ' *'; color: var(--rdr-cost-over); }
-.adm-toolbar .search-box { width: 100%; }
+.adm-toolbar .search-box { width: auto; min-width: 0; }
 #npc-shop-fields, #npc-blip-block, #npc-blip-fields { display: flex; flex-direction: column; gap: 10px; }
 #npc-blip-fields.hidden, #npc-shop-fields.hidden, #npc-blip-block.hidden { display: none !important; }
 .adm-picker-box .search-box { width: 100%; }

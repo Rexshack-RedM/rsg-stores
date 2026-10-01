@@ -275,6 +275,8 @@
     "ui_adm_subtitle": "NPC • Καταστήματα • Σημάδια",
     "ui_adm_tab_npcs": "NPC",
     "ui_adm_tab_blips": "Σημάδια",
+    "ui_adm_filter_all_types": "Όλοι οι τύποι",
+    "ui_adm_filter_no_type": "Χωρίς blip / τύπο",
     "ui_adm_search": "Αναζήτηση...",
     "ui_adm_new_npc": "Νέος NPC",
     "ui_adm_new_blip": "Νέο σημάδι",

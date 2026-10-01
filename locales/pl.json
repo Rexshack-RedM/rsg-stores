@@ -275,6 +275,8 @@
     "ui_adm_subtitle": "NPC • Sklepy • Znaczniki",
     "ui_adm_tab_npcs": "NPC",
     "ui_adm_tab_blips": "Znaczniki",
+    "ui_adm_filter_all_types": "Wszystkie typy",
+    "ui_adm_filter_no_type": "Brak blipa / typu",
     "ui_adm_search": "Szukaj...",
     "ui_adm_new_npc": "Nowy NPC",
     "ui_adm_new_blip": "Nowy znacznik",

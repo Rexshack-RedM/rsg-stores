@@ -7,6 +7,7 @@ var AdminUI = {
     tab: 'npcs',
     view: 'list',          // 'list' | 'npc' | 'blip'
     search: '',
+    typeFilter: '',        // '' = all, '__none' = no blip, otherwise blip sprite value
     npcs: [],
     blips: [],
     hidden: {},
@@ -63,6 +64,7 @@ var AdminUI = {
         (data.hidden || []).forEach(function(id) { h[id] = true; });
         this.hidden = h;
         this.$('adm-npc-count').textContent = this.npcs.length;
+        this.fillTypeFilter();
         this.$('adm-blip-count').textContent = this.blips.length;
         if (this.view === 'list') this.renderList();
         // the record being edited was removed by someone else
@@ -78,6 +80,7 @@ var AdminUI = {
         this.fillSelect('npc-model', this.models);
         this.fillSelect('npc-blip-sprite', this.blipTypes);
         this.fillSelect('blip-sprite', this.blipTypes);
+        this.fillTypeFilter();
         this.$('adm-preset-count').textContent = this.models.length + this.blipTypes.length;
     },
 
@@ -207,6 +210,31 @@ var AdminUI = {
         return true;
     },
 
+    // ---------- store type filter (NPC tab) ----------
+    // A store's type comes from its linked blip (General Store, Saloon, ...).
+    npcStoreType: function(npc) {
+        var b = this.linkedBlip(npc.id);
+        return b ? String(b.sprite) : '__none';
+    },
+
+    fillTypeFilter: function() {
+        var sel = this.$('adm-type-filter'), self = this;
+        if (!sel) return;
+        var seen = {}, opts = [];
+        this.blipTypes.forEach(function(t) { var v = String(t.value); if (!seen[v]) { seen[v] = 1; opts.push({ label: t.label, value: v }); } });
+        this.npcs.forEach(function(n) {
+            var v = self.npcStoreType(n);
+            if (v !== '__none' && !seen[v]) { seen[v] = 1; opts.push({ label: v, value: v }); }
+        });
+        sel.innerHTML = '';
+        sel.appendChild(new Option(this.T('ui_adm_filter_all_types'), ''));
+        opts.forEach(function(o) { sel.appendChild(new Option(o.label, o.value)); });
+        sel.appendChild(new Option(this.T('ui_adm_filter_no_type'), '__none'));
+        if (!Array.prototype.some.call(sel.options, function(o) { return o.value === self.typeFilter; })) this.typeFilter = '';
+        sel.value = this.typeFilter;
+        this.syncDropdown(sel);
+    },
+
     findNpc: function(id) { return this.npcs.find(function(n) { return n.id === id; }); },
     findBlip: function(id) { return this.blips.find(function(b) { return b.id === id; }); },
     linkedBlip: function(npcId) { return this.blips.find(function(b) { return b.associatedNpcId === npcId; }); },
@@ -243,6 +271,7 @@ var AdminUI = {
         this.$('adm-tab-npcs').classList.toggle('active', tab === 'npcs');
         this.$('adm-tab-blips').classList.toggle('active', tab === 'blips');
         this.$('adm-tab-presets').classList.toggle('active', tab === 'presets');
+        this.$('adm-type-filter-wrap').classList.toggle('hidden', tab !== 'npcs');
         this.$('adm-new-label').textContent = this.T(
             tab === 'npcs' ? 'ui_adm_new_npc' : tab === 'blips' ? 'ui_adm_new_blip' : 'ui_adm_new_preset');
         this.renderList();
@@ -257,10 +286,14 @@ var AdminUI = {
             this.npcs.forEach(function(n) {
                 var shop = n.shop;
                 var hay = [n.name, n.model, shop && shop.label, shop && shop.name].join(' ').toLowerCase();
+                var stype = self.npcStoreType(n);
+                if (self.typeFilter && stype !== self.typeFilter) return;
+                var typeLabel = stype !== '__none' ? (self.labelFor(self.blipTypes, stype) || stype) : '';
+                hay += ' ' + typeLabel.toLowerCase();
                 if (q && hay.indexOf(q) === -1) return;
-                var sub = shop
+                var sub = (typeLabel ? typeLabel + ' • ' : '') + (shop
                     ? shop.label + ' • ' + self.T('ui_adm_items_count', (shop.items || []).length) + ' • ' + self.T('ui_adm_type_' + (shop.type || 'both'))
-                    : self.T('ui_adm_no_shop');
+                    : self.T('ui_adm_no_shop'));
                 rows.push({ id: n.id, icon: shop ? 'fa-store' : 'fa-user', title: n.name || n.model, sub: sub, pill: '#' + n.id, off: !shop });
             });
         } else if (this.tab === 'presets') {
@@ -302,7 +335,7 @@ var AdminUI = {
 
         var empty = rows.length === 0;
         this.$('adm-list-empty').classList.toggle('hidden', !empty);
-        this.$('adm-list-empty-text').textContent = q
+        this.$('adm-list-empty-text').textContent = (q || (this.tab === 'npcs' && this.typeFilter))
             ? this.T('cl_no_results')
             : this.T(this.tab === 'npcs' ? 'ui_adm_no_npcs' : this.tab === 'blips' ? 'ui_adm_no_blips' : 'ui_adm_no_presets');
     },
@@ -609,6 +642,7 @@ var AdminUI = {
         $('adm-tab-npcs').addEventListener('click', function() { self.setTab('npcs'); });
         $('adm-tab-blips').addEventListener('click', function() { self.setTab('blips'); });
         $('adm-tab-presets').addEventListener('click', function() { self.setTab('presets'); });
+        $('adm-type-filter').addEventListener('change', function(e) { self.typeFilter = e.target.value; self.renderList(); });
         $('adm-search').addEventListener('input', function(e) { self.search = e.target.value.toLowerCase(); self.renderList(); });
         $('adm-new').addEventListener('click', function() {
             if (self.tab === 'npcs') self.openNpc(null);
